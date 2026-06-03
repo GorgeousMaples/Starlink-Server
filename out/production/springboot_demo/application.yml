@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: springboot_demo
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/django?useSSL=false&serverTimezone=UTC
+    username: djangouser
+    password: django123..
+server:
+  address: 0.0.0.0
+  port: 8000
+
+#spring.devtools.restart.enable=true
+#spring.devtools.restart.additional-path=src/main/java

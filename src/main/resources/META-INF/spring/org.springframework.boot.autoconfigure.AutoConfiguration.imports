@@ -1,0 +1,3 @@
+com.common.satoken.config.SaTokenConfiguration
+com.common.mybatis.config.MybatisPlusConfiguration
+com.common.core.security.GlobalExceptionHandler
