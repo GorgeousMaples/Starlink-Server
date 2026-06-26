@@ -1,5 +1,6 @@
 package com.app.domain;
 
+import com.app.domain.vo.CardGroupInfoVo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,19 +16,34 @@ public class Room {
     private String id;
 
     /**
+     * 卡片 ID（会不断自增）
+     */
+    public int cardId = 0;
+
+    /**
      * 房间密码
      */
     private String password;
 
     /**
-     * 房主 ID
+     * 1号玩家 ID
      */
-    private String host;
+    private String player1;
 
     /**
-     * 玩家 ID
+     * 2号玩家 ID
      */
-    private String player;
+    private String player2;
+
+    /**
+     * 1号玩家卡组信息
+     */
+    private CardGroupInfoVo cardGroup1;
+
+    /**
+     * 2 号玩家卡组信息
+     */
+    private CardGroupInfoVo cardGroup2;
 
     /**
      * 观看者列表
@@ -39,8 +55,8 @@ public class Room {
      */
     public List<String> getAllPlayers() {
         List<String> list = new ArrayList<>();
-        if (host != null) list.add(host);
-        if (player != null) list.add(player);
+        if (player1 != null) list.add(player1);
+        if (player2 != null) list.add(player2);
         if (spectators != null) list.addAll(spectators);
         return list;
     }

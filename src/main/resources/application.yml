@@ -14,7 +14,7 @@ server:
   address: 0.0.0.0
   port: 8000
 file:
-  image-path: F:/Unity/images/
+  image-path: D:/Unity/images/
 
 sa-token:
   # token 名称（同时也是 cookie 名称）

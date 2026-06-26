@@ -25,7 +25,7 @@ public class UnityWebSocketHandler extends TextWebSocketHandler {
         String sessionId = session.getId();
         System.out.println("客户端连接； " + sessionId);
         SESSIONS.put(sessionId, session);
-        sendMessage("GET_SESSION_ID", sessionId, sessionId);
+        sendMessage("GetSessionId", sessionId, sessionId);
     }
 
     @Override
