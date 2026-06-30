@@ -1,5 +1,6 @@
 package com.common.core.utils;
 
+import cn.dev33.satoken.stp.StpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,5 +31,12 @@ public class HeaderUtils {
      */
     public static String getRoomId() {
         return getRequest().getHeader("X-Room-Id");
+    }
+
+    /**
+     * 获取用户 ID
+     */
+    public static String getPlayerId() {
+        return (String) StpUtil.getLoginId();
     }
 }

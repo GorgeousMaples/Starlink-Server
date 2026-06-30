@@ -1,12 +1,9 @@
 package com.app.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.app.config.UnityWebSocketHandler;
-import com.app.domain.bo.DragBo;
-import com.app.domain.bo.LoginBo;
-import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import com.common.core.response.R;
 import com.common.core.utils.HeaderUtils;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +35,7 @@ public class UnityController {
 //        return R.success(msg, "通信成功！");
 //    }
 
+    @SaCheckLogin
     @PostMapping("/broadcast")
     public R<String> broadcast(@RequestBody Map<String, Object> map, @RequestParam String url) {
         String sessionId = HeaderUtils.getSessionId();

@@ -1,5 +1,7 @@
 package com.app.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.StpUtil;
 import com.app.config.UnityWebSocketHandler;
 import com.app.domain.Room;
 import com.app.domain.bo.CardGroupInfoBo;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SaCheckLogin
 @RestController
 @RequestMapping("/room")
 @RequiredArgsConstructor
@@ -28,8 +31,8 @@ public class RoomController {
             @RequestParam String roomId,
             @RequestParam String password
     ) {
-        String sessionId = HeaderUtils.getSessionId();
-        return roomService.createRoom(bo, roomId, password, sessionId);
+        String uid = HeaderUtils.getPlayerId();
+        return roomService.createRoom(bo, roomId, password, uid);
     }
 
     @PostMapping("/enter")
@@ -38,8 +41,8 @@ public class RoomController {
             @RequestParam String roomId,
             @RequestParam String password
     ) {
-        String sessionId = HeaderUtils.getSessionId();
-        return roomService.enterRoom(bo, roomId, password, sessionId);
+        String uid = HeaderUtils.getPlayerId();
+        return roomService.enterRoom(bo, roomId, password, uid);
     }
 
     @GetMapping("/getAll")
