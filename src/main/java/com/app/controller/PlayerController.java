@@ -6,13 +6,11 @@ import com.app.service.PlayerService;
 import com.common.core.response.R;
 import com.common.core.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 public class PlayerController {

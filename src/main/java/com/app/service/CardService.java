@@ -3,6 +3,7 @@ package com.app.service;
 import com.app.config.FileProperties;
 import com.app.domain.Card;
 import com.app.mapper.CardMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.common.core.response.R;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.executor.BatchResult;
@@ -148,6 +149,8 @@ public class CardService {
      * 返回所有的图片
      */
     public List<Card> getAllCards() {
-        return cardMapper.selectList(null);
+        LambdaQueryWrapper<Card> lqw = new LambdaQueryWrapper<>();
+        lqw.orderByAsc(Card::getId); // 根据 ID 排序
+        return cardMapper.selectList(lqw);
     }
 }

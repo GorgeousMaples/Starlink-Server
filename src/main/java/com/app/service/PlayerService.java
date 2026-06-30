@@ -38,10 +38,9 @@ public class PlayerService {
             player.setLastLoginTime(LocalDateTime.now()); // 设置登录时间
             playerMapper.updateById(player);
             PlayerVo vo = PlayerVo.builder()
-                    .uid(player.getUid())
-                    .name(player.getName())
                     .token(StpUtil.getTokenValue())
                     .build();
+            BeanCopyUtils.copy(player, vo);
             return R.success(vo, bo.getName() + "，欢迎回来！");
         } else {
             return R.error("密码错误");
@@ -74,10 +73,9 @@ public class PlayerService {
                 player.setUid(uid);
                 playerMapper.insert(player);
                 PlayerVo vo = PlayerVo.builder()
-                        .uid(uid)
-                        .name(player.getName())
                         .token(StpUtil.getTokenValue())
                         .build();
+                BeanCopyUtils.copy(player, vo);
                 return R.success(vo, "账号注册成功！");
             } catch (DuplicateKeyException e) {
                 // 捕获唯一索引冲突异常
