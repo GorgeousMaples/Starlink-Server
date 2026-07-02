@@ -17,15 +17,34 @@ import java.util.List;
 public class CardController {
     private final CardService cardService;
 
-//    @PostMapping("/upload")
-//    public R<String> uploadImage(
-//            @RequestParam MultipartFile file,
-//            @RequestParam String type,
-//            @RequestParam String name
-//    ) {
-//        return cardService.uploadImage(file, type, name);
-//    }
+    /**
+     * 获取单张卡片信息
+     */
+    @GetMapping("/{id}")
+    public R<Card> getCard(@PathVariable String id) {
+        return cardService.getCard(id);
+    }
 
+    /**
+     * 获取所有卡片信息
+     */
+    @GetMapping("/getAll")
+    public R<List<Card>> getAllCards() {
+        List<Card> list = cardService.getAllCards();
+        return R.success(list);
+    }
+
+    /**
+     * 更新单张卡片
+     */
+    @PostMapping("/update")
+    public R<String> updateCard(@RequestBody Card card) {
+        return cardService.updateCard(card);
+    }
+
+    /**
+     * 上传单张卡片
+     */
     @PostMapping("/upload")
     public R<String> uploadCard(
             @RequestPart MultipartFile file,
@@ -34,11 +53,9 @@ public class CardController {
         return cardService.uploadCard(file, card);
     }
 
-    @PostMapping("/update")
-    public R<String> updateCard(@RequestBody Card card) {
-        return cardService.updateCard(card);
-    }
-
+    /**
+     * 批量上传卡片
+     */
     @PostMapping("/batchUpload")
     public R<String> batchUploadCards(
             @RequestPart MultipartFile[] files,
@@ -47,9 +64,19 @@ public class CardController {
         return cardService.batchUploadCards(files, cards);
     }
 
-    @GetMapping("/getAll")
-    public R<List<Card>> getAllCards() {
-        List<Card> list = cardService.getAllCards();
-        return R.success(list);
+    /**
+     * 删除单张卡片
+     */
+    @DeleteMapping("/{id}")
+    public R<String> deleteCard(@PathVariable String id) {
+        return cardService.deleteCard(id);
+    }
+
+    /**
+     * 批量删除卡片
+     */
+    @DeleteMapping("/batchDelete")
+    public R<String> batchDeleteCards(@RequestBody List<String> ids) {
+        return cardService.batchDeleteCard(ids);
     }
 }

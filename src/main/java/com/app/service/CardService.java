@@ -62,6 +62,50 @@ public class CardService {
     }
 
     /**
+     * 获取单张卡片
+     */
+    public R<Card> getCard(String id) {
+        Card card = cardMapper.selectById(id);
+        if (card == null) {
+            return R.error("卡片不存在");
+        }
+        return R.success(card);
+    }
+
+    /**
+     * 返回所有的卡片
+     */
+    public List<Card> getAllCards() {
+        LambdaQueryWrapper<Card> lqw = new LambdaQueryWrapper<>();
+        lqw.orderByAsc(Card::getId); // 根据 ID 排序
+        return cardMapper.selectList(lqw);
+    }
+
+    /**
+     * 删除卡片
+     */
+    public R<String> deleteCard(String id) {
+        int result = cardMapper.deleteById(id);
+        if (result > 0) {
+            return R.success("删除成功");
+        } else {
+            return R.error("删除失败，卡片不存在");
+        }
+    }
+
+    /**
+     * 批量删除卡片
+     */
+    public R<String> batchDeleteCard(List<String> ids) {
+        int result = cardMapper.deleteByIds(ids);
+        if (result > 0) {
+            return R.success("成功删除" + result + "张卡片");
+        } else {
+            return R.error("卡片批量删除失败！");
+        }
+    }
+
+    /**
      * 上传单张卡片
      */
     public R<String> uploadCard(MultipartFile file, Card card) {
@@ -143,14 +187,5 @@ public class CardService {
             e.printStackTrace();
             return R.error(e.getMessage());
         }
-    }
-
-    /**
-     * 返回所有的图片
-     */
-    public List<Card> getAllCards() {
-        LambdaQueryWrapper<Card> lqw = new LambdaQueryWrapper<>();
-        lqw.orderByAsc(Card::getId); // 根据 ID 排序
-        return cardMapper.selectList(lqw);
     }
 }
