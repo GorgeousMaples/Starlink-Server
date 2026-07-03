@@ -1,14 +1,20 @@
 package com.app.domain;
 
 import com.app.domain.vo.CardGroupInfoVo;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Room {
     /**
      * 房间 ID
@@ -48,7 +54,7 @@ public class Room {
     /**
      * 观看者列表
      */
-    public List<String> spectators;
+    public Set<String> spectators = new HashSet<>();
 
     /**
      * 获取房间内所有玩家的会话号

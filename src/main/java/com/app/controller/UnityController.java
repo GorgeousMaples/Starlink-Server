@@ -35,11 +35,11 @@ public class UnityController {
 //        return R.success(msg, "通信成功！");
 //    }
 
-    @SaCheckLogin
-    @PostMapping("/broadcast")
-    public R<String> broadcast(@RequestBody Map<String, Object> map, @RequestParam String url) {
-        String sessionId = HeaderUtils.getSessionId();
-        handler.broadcast(url, map, sessionId);
-        return R.success(map.toString(), url);
-    }
+//    @SaCheckLogin
+//    @PostMapping("/broadcast")
+//    public R<String> broadcast(@RequestBody Map<String, Object> map, @RequestParam String url) {
+//        String sessionId = HeaderUtils.getSessionId();
+//        handler.broadcast(url, map, sessionId);
+//        return R.success(map.toString(), url);
+//    }
 }

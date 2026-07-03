@@ -18,12 +18,14 @@ public class PlayerController {
 
     @PostMapping("/register")
     public R<PlayerVo> register(@RequestBody PlayerBo bo) {
-        return playerService.register(bo);
+        String sessionId = HeaderUtils.getSessionId();
+        return playerService.register(bo, sessionId);
     }
 
     @PostMapping("/login")
     public R<PlayerVo> login(@RequestBody PlayerBo bo) {
-        return playerService.login(bo);
+        String sessionId = HeaderUtils.getSessionId();
+        return playerService.login(bo, sessionId);
     }
 
     @PostMapping("/modify")

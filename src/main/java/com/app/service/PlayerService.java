@@ -1,6 +1,7 @@
 package com.app.service;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.app.config.UnityWebSocketHandler;
 import com.app.domain.Player;
 import com.app.domain.bo.LoginBo;
 import com.app.domain.bo.PlayerBo;
@@ -22,13 +23,14 @@ import static cn.dev33.satoken.SaManager.log;
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerMapper playerMapper;
+    private final UnityWebSocketHandler handler;
 
     private static final int MAX_RETRY = 10; // 最大重试次数
 
     /**
      * 通过密码登录
      */
-    public R<PlayerVo> login(PlayerBo bo) {
+    public R<PlayerVo> login(PlayerBo bo, String sessionId) {
         Player player = playerMapper.selectById(bo.getUid());
         if (player == null) {
             return R.error("该账号不存在！");
@@ -41,6 +43,7 @@ public class PlayerService {
                     .token(StpUtil.getTokenValue())
                     .build();
             BeanCopyUtils.copy(player, vo);
+            handler.bindSession(player.getUid(), sessionId);
             return R.success(vo, bo.getName() + "，欢迎回来！");
         } else {
             return R.error("密码错误");
@@ -50,7 +53,7 @@ public class PlayerService {
     /**
      * 注册
      */
-    public R<PlayerVo> register(PlayerBo bo) {
+    public R<PlayerVo> register(PlayerBo bo, String sessionId) {
         if (bo.getPassword().isBlank()) {
             return R.error("密码不能为空");
         }
@@ -71,11 +74,13 @@ public class PlayerService {
             try {
                 // 尝试插入数据库
                 player.setUid(uid);
+                player.setLastLoginTime(LocalDateTime.now());
                 playerMapper.insert(player);
                 PlayerVo vo = PlayerVo.builder()
                         .token(StpUtil.getTokenValue())
                         .build();
                 BeanCopyUtils.copy(player, vo);
+                handler.bindSession(bo.getUid(), sessionId);
                 return R.success(vo, "账号注册成功！");
             } catch (DuplicateKeyException e) {
                 // 捕获唯一索引冲突异常

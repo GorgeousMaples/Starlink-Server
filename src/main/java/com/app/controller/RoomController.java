@@ -45,8 +45,20 @@ public class RoomController {
         return roomService.enterRoom(bo, roomId, password, uid);
     }
 
+    @GetMapping("/leave")
+    public R<String> leaveRoom() {
+        String uid = HeaderUtils.getPlayerId();
+        return roomService.leaveRoom(uid);
+    }
+
     @GetMapping("/getAll")
     public R<List<String>> getAllRooms() {
         return roomService.getAllRooms();
+    }
+
+    @PostMapping("/broadcast")
+    public R<String> broadcast(@RequestBody Map<String, Object> map, @RequestParam String url) {
+        String uid = HeaderUtils.getPlayerId();
+        return roomService.broadcastRoom(url, map, uid);
     }
 }

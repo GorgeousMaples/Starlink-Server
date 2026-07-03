@@ -1,12 +1,14 @@
 package com.app.domain.vo;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class RoomInfoVo {
     /**
      * 角色类型【1：玩家1；2：玩家2；3：旁观者】
@@ -16,7 +18,7 @@ public class RoomInfoVo {
     /**
      * 角色 ID
      */
-    private String sessionId;
+    private String playerId;
 
     /**
      * 1号玩家卡组信息
