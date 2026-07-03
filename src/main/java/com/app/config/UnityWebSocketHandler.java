@@ -51,7 +51,13 @@ public class UnityWebSocketHandler extends TextWebSocketHandler {
      * 绑定玩家与会话
      */
     public void bindSession(String playerId, String sessionId) {
+        if (PLAYER_SESSIONS.containsKey(playerId)) {
+            sendMessage("Logout", "检测到您在另外一处登录，本地账号被强制下线", playerId);
+            WebSocketSession session = PLAYER_SESSIONS.get(playerId);
+            System.out.println("因多处登录，玩家与会话切断绑定: " + playerId + " <-x-> " + session.getId());
+        }
         WebSocketSession session = SESSIONS.get(sessionId);
+        System.out.println("玩家与会话绑定: " + playerId + " <---> " + sessionId);
         session.getAttributes().put("playerId", playerId); // 将玩家 ID 存入会话中
         PLAYER_SESSIONS.put(playerId, session);
     }
@@ -142,6 +148,8 @@ public class UnityWebSocketHandler extends TextWebSocketHandler {
      * 给房间的所有人发送广播
      */
     public <T> void broadcast(String url, T data, Room room, String senderId) {
+//        System.out.println("房间内所有玩家: " + room.getAllPlayers());
+//        System.out.println("发送者ID: " + senderId);
         broadcast(url, data, room.getAllPlayers(), senderId);
     }
 

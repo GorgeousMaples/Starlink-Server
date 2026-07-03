@@ -76,11 +76,12 @@ public class PlayerService {
                 player.setUid(uid);
                 player.setLastLoginTime(LocalDateTime.now());
                 playerMapper.insert(player);
+                StpUtil.login(uid);
                 PlayerVo vo = PlayerVo.builder()
                         .token(StpUtil.getTokenValue())
                         .build();
                 BeanCopyUtils.copy(player, vo);
-                handler.bindSession(bo.getUid(), sessionId);
+                handler.bindSession(uid, sessionId);
                 return R.success(vo, "账号注册成功！");
             } catch (DuplicateKeyException e) {
                 // 捕获唯一索引冲突异常

@@ -39,11 +39,12 @@ public class RoomService {
         Room room = Room.builder()
                 .id(roomId)
                 .password(password)
+                .player1(new Room.PlayerInfo())
+                .player2(new Room.PlayerInfo())
                 .spectators(new HashSet<>())
                 .build();
         CardGroupInfoVo cardGroupVo = buildCardGroupInfo(room, bo);
-        room.setPlayer1(playerId);
-        room.setCardGroup1(cardGroupVo);
+        room.player1.bindInfo(playerId, cardGroupVo);
         roomCache.put(roomId, room);
         playerRoomCache.put(playerId, room);
         System.out.println("新建房间：" + roomId);
@@ -60,6 +61,8 @@ public class RoomService {
         }
 
         Room room = roomCache.get(roomId);
+        Player player = playerMapper.selectById(playerId);
+        String name = player.getName();
         if (!password.equals(room.getPassword())) {
             return R.error("房间密码错误");
         }
@@ -68,31 +71,30 @@ public class RoomService {
         playerRoomCache.put(playerId, room);
 
         // 1号玩家重新进入房间
-        if (playerId.equals(room.getPlayer1())) {
+        if (playerId.equals(room.player1.id)) {
             RoomInfoVo roomVo = buildRoomInfo(room, 1, playerId);
-            return R.success(roomVo, "1号玩家进入房间");
+            return R.success(roomVo, "1号玩家回到房间");
         }
 
         // 2号玩家重新进入房间
-        if (playerId.equals(room.getPlayer2())) {
+        if (playerId.equals(room.player2.id)) {
             RoomInfoVo roomVo = buildRoomInfo(room, 2, playerId);
-            return R.success(roomVo, "2号玩家进入房间");
+            return R.success(roomVo, "2号玩家回到房间");
         }
 
         // 2号玩家首次进入房间
-        if (room.getPlayer2() == null) {
+        if (room.getPlayer2().id == null) {
             CardGroupInfoVo cardGroupVo = buildCardGroupInfo(room, bo);
-            room.setPlayer2(playerId);
-            room.setCardGroup2(cardGroupVo);
+            room.player2.bindInfo(playerId, cardGroupVo);
             RoomInfoVo roomVo = buildRoomInfo(room, 2, playerId);
             handler.broadcast("Player2Enter", cardGroupVo, room, playerId);
-            return R.success(roomVo, "2号玩家首次进入房间");
+            return R.success(roomVo, String.format("2号玩家【%s】加入房间", name));
         }
 
         // 旁观者进入房间
         RoomInfoVo roomVo = buildRoomInfo(room, 3, playerId);
         room.spectators.add(playerId);
-        return R.success(roomVo, "旁观者进入房间");
+        return R.success(roomVo,  String.format("旁观者【%s】加入房间", name));
     }
 
     /**
@@ -109,15 +111,15 @@ public class RoomService {
         if (room.spectators.contains(playerId)) {
             room.spectators.remove(playerId);
             message = String.format("旁观者【%s】离开房间", name);
-        } else if (room.getPlayer1().equals(playerId)) {
-            room.setPlayer1(null);
+        } else if (room.player1.id.equals(playerId)) {
+            room.player1.isInRoom = false;
             message = String.format("1号玩家【%s】离开房间", name);
-        } else if (room.getPlayer2().equals(playerId)) {
-            room.setPlayer2(null);
+        } else if (room.player2.id.equals(playerId)) {
+            room.player2.isInRoom = false;
             message = String.format("2号玩家【%s】离开房间", name);
         }
         // 两个玩家都离开房间，则清除房间
-        if (room.getPlayer1() == null && room.getPlayer2() == null) {
+        if (!room.player1.isInRoom && !room.player2.isInRoom) {
             roomCache.remove(room.getId());
             message = message + "，房间已关闭";
         }
@@ -164,8 +166,8 @@ public class RoomService {
         return RoomInfoVo.builder()
                 .role(role)
                 .playerId(playerId)
-                .cardGroupInfo1(room.getCardGroup1())
-                .cardGroupInfo2(room.getCardGroup2())
+                .cardGroupInfo1(room.player1.cardGroup)
+                .cardGroupInfo2(room.player2.cardGroup)
                 .build();
     }
 
