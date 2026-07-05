@@ -41,36 +41,6 @@ public class Room {
      */
     public PlayerInfo player2;
 
-//    /**
-//     * 1号玩家 ID
-//     */
-//    private String player1;
-//
-//    /**
-//     * 2号玩家 ID
-//     */
-//    private String player2;
-//
-//    /**
-//     * 1号玩家卡组信息
-//     */
-//    private CardGroupInfoVo cardGroup1;
-//
-//    /**
-//     * 2 号玩家卡组信息
-//     */
-//    private CardGroupInfoVo cardGroup2;
-//
-//    /**
-//     * 1 号玩家是否在游戏中
-//     */
-//    private boolean isPlay1 = false;
-//
-//    /**
-//     * 2 号玩家是否在游戏中
-//     */
-//    private boolean isPlay2 = false;
-
     /**
      * 观看者列表
      */
@@ -103,10 +73,15 @@ public class Room {
             cardGroup = cardGroupInfo;
             isInRoom = true;
         }
+
+        public CardGroupInfoVo getCardGroupInfo() {
+            if (cardGroup == null) return null;
+            return cardGroup.convert();
+        }
     }
 
     /**
-     * 获取房间内所有玩家的会话号
+     * 获取房间内所有玩家的ID
      */
     public List<String> getAllPlayers() {
         List<String> list = new ArrayList<>();

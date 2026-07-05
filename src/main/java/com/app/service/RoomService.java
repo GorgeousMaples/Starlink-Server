@@ -8,14 +8,10 @@ import com.app.domain.vo.CardGroupInfoVo;
 import com.app.domain.vo.RoomInfoVo;
 import com.app.mapper.PlayerMapper;
 import com.common.core.response.R;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -28,6 +24,9 @@ public class RoomService {
 
     @Autowired
     private PlayerMapper playerMapper;
+
+    @Autowired
+    private GameService gameService;
 
     /**
      * 创建房间
@@ -43,7 +42,7 @@ public class RoomService {
                 .player2(new Room.PlayerInfo())
                 .spectators(new HashSet<>())
                 .build();
-        CardGroupInfoVo cardGroupVo = buildCardGroupInfo(room, bo);
+        CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo);
         room.player1.bindInfo(playerId, cardGroupVo);
         roomCache.put(roomId, room);
         playerRoomCache.put(playerId, room);
@@ -84,7 +83,7 @@ public class RoomService {
 
         // 2号玩家首次进入房间
         if (room.getPlayer2().id == null) {
-            CardGroupInfoVo cardGroupVo = buildCardGroupInfo(room, bo);
+            CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo);
             room.player2.bindInfo(playerId, cardGroupVo);
             RoomInfoVo roomVo = buildRoomInfo(room, 2, playerId);
             handler.broadcast("Player2Enter", cardGroupVo, room, playerId);
@@ -120,7 +119,7 @@ public class RoomService {
         }
         // 两个玩家都离开房间，则清除房间
         if (!room.player1.isInRoom && !room.player2.isInRoom) {
-            roomCache.remove(room.getId());
+//            roomCache.remove(room.getId());
             message = message + "，房间已关闭";
         }
         handler.broadcast("ShowMessage", message, room, playerId); // 广播
@@ -141,21 +140,31 @@ public class RoomService {
      */
     public R<String> broadcastRoom(String url, Map<String, Object> map, String playerId) {
         Room room = playerRoomCache.get(playerId);
+        if (room.player1.id.equals(playerId)) {
+            gameService.invokeMethod(url, map, room.player1.cardGroup);
+        } else if (room.player2.id.equals(playerId)) {
+            gameService.invokeMethod(url, map, room.player2.cardGroup);
+        } else {
+            return R.error(String.format("异常的玩家ID，%s既不是1号玩家也不是2号玩家", playerId));
+        }
         handler.broadcast(url, map, room, playerId); // 广播
         return R.success(map.toString(), url);
     }
 
     /**
-     * 构建卡组信息
+     * 初始化卡组信息
      */
-    private CardGroupInfoVo buildCardGroupInfo(Room room, CardGroupInfoBo bo) {
+    private CardGroupInfoVo initCardGroupInfo(Room room, CardGroupInfoBo bo) {
         CardGroupInfoVo vo = new CardGroupInfoVo();
-        List<Integer> ids = new ArrayList<>();
+        List<Integer> keyList = new ArrayList<>();
         for (int i = 0; i < bo.getCardList().size(); i++) {
-            ids.add(room.cardId++);
+            keyList.add(room.cardId++);
         }
         vo.setCardList(bo.getCardList());
-        vo.setCardIdList(ids);
+        vo.setKeyList(keyList);
+        List<Integer> cardAreaList = new ArrayList<>(keyList);
+        Collections.shuffle(cardAreaList); // 打乱顺序
+        vo.setCardAreaList(cardAreaList);
         return vo;
     }
 
@@ -166,8 +175,8 @@ public class RoomService {
         return RoomInfoVo.builder()
                 .role(role)
                 .playerId(playerId)
-                .cardGroupInfo1(room.player1.cardGroup)
-                .cardGroupInfo2(room.player2.cardGroup)
+                .cardGroupInfo1(room.player1.getCardGroupInfo())
+                .cardGroupInfo2(room.player2.getCardGroupInfo())
                 .build();
     }
 
