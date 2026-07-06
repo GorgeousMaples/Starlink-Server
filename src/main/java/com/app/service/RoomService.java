@@ -72,12 +72,14 @@ public class RoomService {
         // 1号玩家重新进入房间
         if (playerId.equals(room.player1.id)) {
             RoomInfoVo roomVo = buildRoomInfo(room, 1, playerId);
+            room.player1.isInRoom = true;
             return R.success(roomVo, "1号玩家回到房间");
         }
 
         // 2号玩家重新进入房间
         if (playerId.equals(room.player2.id)) {
             RoomInfoVo roomVo = buildRoomInfo(room, 2, playerId);
+            room.player2.isInRoom = true;
             return R.success(roomVo, "2号玩家回到房间");
         }
 
@@ -119,7 +121,7 @@ public class RoomService {
         }
         // 两个玩家都离开房间，则清除房间
         if (!room.player1.isInRoom && !room.player2.isInRoom) {
-//            roomCache.remove(room.getId());
+            roomCache.remove(room.getId());
             message = message + "，房间已关闭";
         }
         handler.broadcast("ShowMessage", message, room, playerId); // 广播
@@ -141,9 +143,9 @@ public class RoomService {
     public R<String> broadcastRoom(String url, Map<String, Object> map, String playerId) {
         Room room = playerRoomCache.get(playerId);
         if (room.player1.id.equals(playerId)) {
-            gameService.invokeMethod(url, map, room.player1.cardGroup);
+            gameService.invokeMethod(url, map, room.player1.cardGroup, room.player2.cardGroup);
         } else if (room.player2.id.equals(playerId)) {
-            gameService.invokeMethod(url, map, room.player2.cardGroup);
+            gameService.invokeMethod(url, map, room.player2.cardGroup, room.player1.cardGroup);
         } else {
             return R.error(String.format("异常的玩家ID，%s既不是1号玩家也不是2号玩家", playerId));
         }

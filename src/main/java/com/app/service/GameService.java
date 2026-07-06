@@ -36,7 +36,12 @@ public class GameService {
     /**
      * 通用调用方法
      */
-    public Object invokeMethod(String methodName, Map<String, Object> params, CardGroupInfoVo cardGroup) {
+    public Object invokeMethod(
+            String methodName,
+            Map<String, Object> params,
+            CardGroupInfoVo cardGroup,
+            CardGroupInfoVo otherGroup
+    ) {
         Method method = methodCache.get(methodName);
         if (method == null) {
             throw new IllegalArgumentException("Method not found: " + methodName);
@@ -49,8 +54,10 @@ public class GameService {
                 Parameter param = parameters[i];
 
                 // 特殊处理 cardGroup 参数
-                if (param.getName().equals("cardGroup") || param.getType() == CardGroupInfoVo.class) {
+                if (param.getName().equals("cardGroup") && param.getType() == CardGroupInfoVo.class) {
                     args[i] = cardGroup;
+                } else if (param.getName().equals("otherGroup") && param.getType() == CardGroupInfoVo.class) {
+                    args[i] = otherGroup;
                 } else {
                     // 从 map 中获取参数值
                     Object value = params.get(param.getName());
@@ -121,8 +128,11 @@ public class GameService {
      * 创建贴纸
      */
     @RemoteMethod
-    public void CreateSticker(int stickerId, int typeId, int cardId, CardGroupInfoVo cardGroup) {
+    public void CreateSticker(int stickerId, int typeId, int cardId, CardGroupInfoVo cardGroup, CardGroupInfoVo otherGroup) {
         CardInfoVo cardInfo = cardGroup.frameMap.get(cardId);
+        if (cardInfo == null) {
+            cardInfo = otherGroup.frameMap.get(cardId);
+        }
         cardInfo.stickers[typeId] = stickerId;
     }
 

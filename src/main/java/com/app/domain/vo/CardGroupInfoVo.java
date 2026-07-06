@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 @NoArgsConstructor
@@ -56,7 +57,7 @@ public class CardGroupInfoVo {
      * 卡框字典（不参与序列化，用于转 frameList）
      */
     @JsonIgnore
-    public Map<Integer, CardInfoVo> frameMap = new HashMap<>();
+    public Map<Integer, CardInfoVo> frameMap = new ConcurrentHashMap<>();
 
     /**
      * 将原始类转换成可 JSON 化的类
