@@ -14,6 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @NoArgsConstructor
 public class CardGroupInfoVo {
     /**
+     * 玩家名
+     */
+    private String playerName;
+
+    /**
      * 卡片 ID 列表
      */
     private List<String> cardList = new ArrayList<>();

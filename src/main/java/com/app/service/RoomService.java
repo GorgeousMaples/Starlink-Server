@@ -42,7 +42,7 @@ public class RoomService {
                 .player2(new Room.PlayerInfo())
                 .spectators(new HashSet<>())
                 .build();
-        CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo);
+        CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo, playerId);
         room.player1.bindInfo(playerId, cardGroupVo);
         roomCache.put(roomId, room);
         playerRoomCache.put(playerId, room);
@@ -85,7 +85,7 @@ public class RoomService {
 
         // 2号玩家首次进入房间
         if (room.getPlayer2().id == null) {
-            CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo);
+            CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo, playerId);
             room.player2.bindInfo(playerId, cardGroupVo);
             RoomInfoVo roomVo = buildRoomInfo(room, 2, playerId);
             handler.broadcast("Player2Enter", cardGroupVo, room, playerId);
@@ -156,8 +156,10 @@ public class RoomService {
     /**
      * 初始化卡组信息
      */
-    private CardGroupInfoVo initCardGroupInfo(Room room, CardGroupInfoBo bo) {
+    private CardGroupInfoVo initCardGroupInfo(Room room, CardGroupInfoBo bo, String playerId) {
         CardGroupInfoVo vo = new CardGroupInfoVo();
+        Player player = playerMapper.selectById(playerId);
+        vo.setPlayerName(player.getName());
         List<Integer> keyList = new ArrayList<>();
         for (int i = 0; i < bo.getCardList().size(); i++) {
             keyList.add(room.cardId++);
