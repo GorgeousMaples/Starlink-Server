@@ -43,6 +43,14 @@ public class CardController {
     }
 
     /**
+     * 批量更新卡片
+     */
+    @PostMapping("/batchUpdate")
+    public R<String> updateCards(@RequestBody List<Card> cards) {
+        return cardService.updateCards(cards);
+    }
+
+    /**
      * 上传单张卡片
      */
     @PostMapping("/upload")
@@ -57,11 +65,11 @@ public class CardController {
      * 批量上传卡片
      */
     @PostMapping("/batchUpload")
-    public R<String> batchUploadCards(
+    public R<String> uploadCards(
             @RequestPart MultipartFile[] files,
             @RequestPart List<Card> cards
     ) {
-        return cardService.batchUploadCards(files, cards);
+        return cardService.uploadCards(files, cards);
     }
 
     /**

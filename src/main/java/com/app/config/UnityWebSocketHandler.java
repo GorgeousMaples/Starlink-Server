@@ -51,6 +51,7 @@ public class UnityWebSocketHandler extends TextWebSocketHandler {
      * 绑定玩家与会话
      */
     public void bindSession(String playerId, String sessionId) {
+        if (sessionId == null) return;
         if (PLAYER_SESSIONS.containsKey(playerId)) {
             sendMessage("Logout", "检测到您在另外一处登录，本地账号被强制下线", playerId);
             WebSocketSession session = PLAYER_SESSIONS.get(playerId);

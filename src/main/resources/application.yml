@@ -3,11 +3,8 @@ spring:
     allow-circular-references: true
   application:
     name: starlink
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/starlink?useSSL=false&serverTimezone=UTC
-    username: starlink
-    password: starlink123
+  profiles:
+    active: dev
   servlet:
     multipart:
       max-file-size: 10MB
@@ -15,8 +12,6 @@ spring:
 server:
   address: 0.0.0.0
   port: 8000
-file:
-  image-path: D:/Unity/images/
 
 sa-token:
   # token 名称（同时也是 cookie 名称）

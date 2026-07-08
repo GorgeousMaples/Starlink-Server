@@ -1,5 +1,7 @@
 package com.app.domain;
 
+import com.app.config.MyBatisHandler;
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -8,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 /**
  * 卡片类
@@ -49,7 +53,7 @@ public class Card {
      * 星级
      */
     @TableField("C_LEVEL")
-    private Integer level;
+    private Integer level = 0;
 
     /**
      * 设计师
@@ -128,4 +132,18 @@ public class Card {
      */
     @TableField("C_STRENGTH")
     private Float strength;
+
+    /**
+     * 秒级时间戳
+     * 插入与更新的时候自动更新
+     */
+    @TableField(value = "C_TIMESTAMP")
+    private String timestamp;
+
+    /**
+     * 更新时间戳
+     */
+    public void updateTimestamp() {
+        this.timestamp = LocalDateTime.now().format(MyBatisHandler.FORMATTER);
+    }
 }

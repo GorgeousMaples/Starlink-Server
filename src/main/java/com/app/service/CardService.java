@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -112,6 +111,7 @@ public class CardService {
         try {
             String path = saveFile(file, "card", card.getId());
             card.setPath(path); // 将地址改为本地磁盘中的地址
+            card.updateTimestamp(); // 更新时间戳
             cardMapper.insertOrUpdate(card);
             return R.success(card.getId() + "卡片上传成功");
         } catch (IOException e) {
@@ -135,9 +135,24 @@ public class CardService {
     }
 
     /**
+     * 批量更新卡片
+     */
+    public R<String> updateCards(List<Card> cards) {
+        try {
+            // 不更新路径
+            cards.forEach(card -> card.setPath(null));
+            cardMapper.updateById(cards);
+            return R.success(String.format("成功更新 %d 张卡片", cards.size()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.error(e.getMessage());
+        }
+    }
+
+    /**
      * 批量卡片
      */
-    public R<String> batchUploadCards(MultipartFile[] files, List<Card> cards) {
+    public R<String> uploadCards(MultipartFile[] files, List<Card> cards) {
         if (cards.size() != files.length) {
             return R.error("上传的卡片信息与图片数量不同！");
         }
@@ -148,6 +163,7 @@ public class CardService {
                 Card card = cards.get(i);
                 String path = saveFile(file, "card", card.getId());
                 card.setPath(path);
+                card.updateTimestamp(); // 更新时间戳
             }
             // 批量存入数据库
             List<BatchResult> results = cardMapper.insertOrUpdate(cards);

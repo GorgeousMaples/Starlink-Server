@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Spring Boot 应用
+  starlink-app:
+    build: .
+    container_name: starlink-app
+    ports:
+      - "8000:8000"   # 对应 server.port=8000
+    environment:
+      # === 数据库配置（覆盖 yml 里的 localhost）===
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/starlink?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=starlink
+      - SPRING_DATASOURCE_PASSWORD=starlink123
+
+      # === 文件上传路径（重点！）===
+      # 容器内路径，对应你 yml 里的 file.image-path
+      - FILE_IMAGE_PATH=/app/images/
+
+      # === Sa-Token 等配置如果有需要也可以放这里 ===
+      # 例如：- SA_TOKEN_TIMEOUT=2592000
+    volumes:
+      # 将宿主机目录挂载到容器，实现文件持久化
+      # 左边：宿主机目录（改成你服务器上的真实目录）
+      # 右边：容器内目录（必须和 FILE_IMAGE_PATH 一致）
+      - /data/starlink/images:/app/images
+    depends_on:
+      - mysql
+    restart: always
+
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: starlink-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: starlink123
+      MYSQL_DATABASE: starlink
+      MYSQL_USER: starlink
+      MYSQL_PASSWORD: starlink123
+    volumes:
+      # 持久化 MySQL 数据
+      - mysql_data:/var/lib/mysql
+      # 可选：初始化 SQL（如果你有 init.sql）
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+
+# 数据卷定义
+volumes:
+  mysql_data:
