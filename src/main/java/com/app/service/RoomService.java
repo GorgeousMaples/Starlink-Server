@@ -36,16 +36,11 @@ public class RoomService {
         if (roomCache.containsKey(roomId)) {
             return R.error("该房间号已经存在！");
         }
-        Room room = Room.builder()
-                .id(roomId)
-                .password(password)
-                .player1(new Room.PlayerInfo())
-                .player2(new Room.PlayerInfo())
-                .spectators(new HashSet<>())
-                .handler(new CardHandler())
-                .build();
-        CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo, playerId);
-        room.player1.bindInfo(playerId, cardGroupVo);
+        Room room = new Room(roomId, password);
+        Player player = playerMapper.selectById(playerId);
+        String name = player.getName();
+        room.initCardGroup(true, bo, name);
+        room.player1.bindInfo(playerId);
         roomCache.put(roomId, room);
         playerRoomCache.put(playerId, room);
         System.out.println("新建房间：" + roomId);
@@ -87,10 +82,10 @@ public class RoomService {
 
         // 2号玩家首次进入房间
         if (room.getPlayer2().id == null) {
-            CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo, playerId);
-            room.player2.bindInfo(playerId, cardGroupVo);
+            room.initCardGroup(false, bo, name);
+            room.player2.bindInfo(playerId);
             RoomInfoVo roomVo = buildRoomInfo(room, 2, playerId);
-            handler.broadcast("Player2Enter", cardGroupVo, room, playerId);
+            handler.broadcast("Player2Enter", room.player2.cardGroup, room, playerId);
             return R.success(roomVo, String.format("2号玩家【%s】加入房间", name));
         }
 
@@ -158,24 +153,21 @@ public class RoomService {
         return R.success(map.toString(), url);
     }
 
-    /**
-     * 初始化卡组信息
-     */
-    private CardGroupInfoVo initCardGroupInfo(Room room, CardGroupInfoBo bo, String playerId) {
-        CardGroupInfoVo vo = new CardGroupInfoVo();
-        Player player = playerMapper.selectById(playerId);
-        vo.setPlayerName(player.getName());
-        List<Integer> keyList = new ArrayList<>();
-        for (int i = 0; i < bo.getCardList().size(); i++) {
-            keyList.add(room.cardId++);
-        }
-        vo.setCardList(bo.getCardList());
-        vo.setKeyList(keyList);
-        List<Integer> cardAreaList = new ArrayList<>(keyList);
-        Collections.shuffle(cardAreaList); // 打乱顺序
-        vo.setCardAreaList(cardAreaList);
-        return vo;
-    }
+//    /**
+//     * 初始化卡组信息
+//     */
+//    private void initCardGroupInfo(Room room, CardGroupInfoVo vo, CardGroupInfoBo bo, String playerId) {
+//        Player player = playerMapper.selectById(playerId);
+//        vo.setPlayerName(player.getName());
+//        List<Integer> keyList = vo.getKeyList();
+//        for (int i = 0; i < bo.getCardList().size(); i++) {
+//            keyList.add(room.cardId++);
+//        }
+//        vo.setCardList(bo.getCardList());
+//        List<Integer> cardAreaList = new ArrayList<>(keyList);
+//        Collections.shuffle(cardAreaList); // 打乱顺序
+//        vo.getCardAreaList().addAll(cardAreaList); // 全都添加进去
+//    }
 
     /**
      * 构建房间信息

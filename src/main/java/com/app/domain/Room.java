@@ -1,5 +1,6 @@
 package com.app.domain;
 
+import com.app.domain.bo.CardGroupInfoBo;
 import com.app.domain.vo.CardGroupInfoVo;
 import com.common.core.utils.CardHandler;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,10 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -46,13 +44,25 @@ public class Room {
     /**
      * 观看者列表
      */
-    public Set<String> spectators = new HashSet<>();
+    public Set<String> spectators;
 
     /**
      * 卡片操作工具
      */
     @JsonIgnore
     public CardHandler handler;
+
+    /**
+     * 构造方法
+     */
+    public Room(String id, String password) {
+        this.id = id;
+        this.password = password;
+        player1 = new PlayerInfo();
+        player2 = new PlayerInfo();
+        spectators = new HashSet<>();
+        handler = new CardHandler();
+    }
 
     /**
      * 玩家信息内部类
@@ -66,7 +76,7 @@ public class Room {
         /**
          * 卡组信息
          */
-        public CardGroupInfoVo cardGroup;
+        public CardGroupInfoVo cardGroup = new CardGroupInfoVo();
 
         /**
          * 玩家是否还在房间内
@@ -76,9 +86,8 @@ public class Room {
         /**
          * 绑定玩家信息
          */
-        public void bindInfo(String playerId, CardGroupInfoVo cardGroupInfo) {
+        public void bindInfo(String playerId) {
             id = playerId;
-            cardGroup = cardGroupInfo;
             isInRoom = true;
         }
 
@@ -97,5 +106,21 @@ public class Room {
         if (player2 != null && player2.isInRoom) list.add(player2.id);
         if (spectators != null) list.addAll(spectators);
         return list;
+    }
+
+    /**
+     * 初始化卡组信息
+     */
+    public void initCardGroup(boolean isPlayer1, CardGroupInfoBo bo, String playerName) {
+        CardGroupInfoVo vo = isPlayer1 ? player1.cardGroup : player2.cardGroup;
+        vo.setPlayerName(playerName);
+        List<Integer> keyList = vo.getKeyList();
+        for (int i = 0; i < bo.getCardList().size(); i++) {
+            keyList.add(cardId++);
+        }
+        vo.setCardList(bo.getCardList());
+        List<Integer> cardAreaList = new ArrayList<>(keyList);
+        Collections.shuffle(cardAreaList); // 打乱顺序
+        vo.getCardAreaList().addAll(cardAreaList); // 全都添加进去
     }
 }
