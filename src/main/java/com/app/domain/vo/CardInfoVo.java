@@ -26,7 +26,8 @@ public class CardInfoVo {
      */
     public int[] stickers = new int[]{-1, -1, -1, -1};
 
-    public CardInfoVo(int key) {
+    public CardInfoVo(int key, int pos) {
         this.key = key;
+        this.pos = pos;
     }
 }

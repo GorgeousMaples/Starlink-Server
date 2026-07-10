@@ -1,8 +1,8 @@
 package com.app.service;
 
-import com.app.domain.vo.CardGroupInfoVo;
 import com.app.domain.vo.CardInfoVo;
 import com.common.core.domain.RemoteMethod;
+import com.common.core.utils.CardHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
@@ -39,8 +39,7 @@ public class GameService {
     public Object invokeMethod(
             String methodName,
             Map<String, Object> params,
-            CardGroupInfoVo cardGroup,
-            CardGroupInfoVo otherGroup
+            CardHandler cardHandler
     ) {
         Method method = methodCache.get(methodName);
         if (method == null) {
@@ -53,11 +52,9 @@ public class GameService {
             for (int i = 0; i < parameters.length; i++) {
                 Parameter param = parameters[i];
 
-                // 特殊处理 cardGroup 参数
-                if (param.getName().equals("cardGroup") && param.getType() == CardGroupInfoVo.class) {
-                    args[i] = cardGroup;
-                } else if (param.getName().equals("otherGroup") && param.getType() == CardGroupInfoVo.class) {
-                    args[i] = otherGroup;
+                // 特殊处理 cardHandler 参数
+                if (param.getType() == CardHandler.class) {
+                    args[i] = cardHandler;
                 } else {
                     // 从 map 中获取参数值
                     Object value = params.get(param.getName());
@@ -78,39 +75,38 @@ public class GameService {
      * 从卡区移动到手牌区
      */
     @RemoteMethod
-    public void MoveFromAreaToHand(int areaId, CardGroupInfoVo cardGroup) {
-        List<Integer> handList = cardGroup.getHandList();
-        int key = cardGroup.removeAreaLast(areaId); // 移除最后一张卡
-        handList.add(key);
+    public void MoveFromAreaToHand(boolean isOpponent, int cardId, int areaId, CardHandler cardHandler) {
+        List<Integer> handList = cardHandler.getHandList(isOpponent);
+        cardHandler.removeAreaCard(areaId, cardId);
+        handList.add(cardId);
     }
 
     /**
      * 将卡牌从卡区移动到卡区
      */
     @RemoteMethod
-    public void MoveFromAreaToArea(int areaId, int targetAreaId, CardGroupInfoVo cardGroup) {
-        int key = cardGroup.removeAreaLast(areaId);
-        List<Integer> areaList = cardGroup.getAreaList(targetAreaId);
-        areaList.add(key);
+    public void MoveFromAreaToArea(int cardId, int areaId, int targetAreaId, CardHandler cardHandler) {
+        cardHandler.removeAreaCard(areaId, cardId);
+        List<Integer> areaList = cardHandler.getAreaList(targetAreaId);
+        areaList.add(cardId);
     }
 
     /**
      * 将手牌移动到卡框处
      */
     @RemoteMethod
-    public void MoveToFrame(int cardId, int frameId, CardGroupInfoVo cardGroup) {
-        CardInfoVo cardInfo = cardGroup.removeCard(cardId);
-        cardInfo.setPos(frameId);
-        cardGroup.frameMap.put(cardId, cardInfo);
+    public void MoveToFrame(int cardId, int frameId, CardHandler cardHandler) {
+        boolean isSelf = cardHandler.removeCard(cardId);
+        cardHandler.setCardPosition(isSelf, cardId, frameId);
     }
 
     /**
      * 将手牌移动到卡区中
      */
     @RemoteMethod
-    public void MoveToArea(int cardId, int areaId, CardGroupInfoVo cardGroup) {
-        cardGroup.removeCard(cardId);
-        List<Integer> areaList = cardGroup.getAreaList(areaId);
+    public void MoveToArea(int cardId, int areaId, CardHandler cardHandler) {
+        cardHandler.removeCard(cardId);
+        List<Integer> areaList = cardHandler.getAreaList(areaId);
         areaList.add(cardId);
     }
 
@@ -118,9 +114,9 @@ public class GameService {
      * 将手牌移动到手牌区中
      */
     @RemoteMethod
-    public void MoveToHand(int cardId, CardGroupInfoVo cardGroup) {
-        cardGroup.removeCard(cardId);
-        List<Integer> handList = cardGroup.getHandList();
+    public void MoveToHand(boolean isOpponent, int cardId, CardHandler cardHandler) {
+        cardHandler.removeCard(cardId);
+        List<Integer> handList = cardHandler.getHandList(isOpponent);
         handList.add(cardId);
     }
 
@@ -128,11 +124,8 @@ public class GameService {
      * 创建贴纸
      */
     @RemoteMethod
-    public void CreateSticker(int stickerId, int typeId, int cardId, CardGroupInfoVo cardGroup, CardGroupInfoVo otherGroup) {
-        CardInfoVo cardInfo = cardGroup.frameMap.get(cardId);
-        if (cardInfo == null) {
-            cardInfo = otherGroup.frameMap.get(cardId);
-        }
+    public void CreateSticker(int stickerId, int typeId, int cardId, CardHandler cardHandler) {
+        CardInfoVo cardInfo = cardHandler.getCard(cardId);
         cardInfo.stickers[typeId] = stickerId;
     }
 
@@ -140,9 +133,9 @@ public class GameService {
      * 拖拽贴纸
      */
     @RemoteMethod
-    public void MoveSticker(int typeId, int cardId, int targetCardId, CardGroupInfoVo cardGroup) {
-        CardInfoVo card = cardGroup.frameMap.get(cardId);
-        CardInfoVo targetCard = cardGroup.frameMap.get(targetCardId);
+    public void MoveSticker(int typeId, int cardId, int targetCardId, CardHandler cardHandler) {
+        CardInfoVo card = cardHandler.getCard(cardId);
+        CardInfoVo targetCard = cardHandler.getCard(targetCardId);
         targetCard.stickers[typeId] = card.stickers[typeId];
         card.stickers[typeId] = -1;
     }
@@ -151,8 +144,8 @@ public class GameService {
      * 移除贴纸
      */
     @RemoteMethod
-    public void RemoveSticker(int typeId, int cardId, CardGroupInfoVo cardGroup) {
-        CardInfoVo cardInfo = cardGroup.frameMap.get(cardId);
+    public void RemoveSticker(int typeId, int cardId, CardHandler cardHandler) {
+        CardInfoVo cardInfo = cardHandler.getCard(cardId);
         cardInfo.stickers[typeId] = -1;
     }
 }

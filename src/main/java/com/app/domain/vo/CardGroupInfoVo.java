@@ -71,39 +71,4 @@ public class CardGroupInfoVo {
         frameList = new ArrayList<>(frameMap.values());
         return this;
     }
-
-    /**
-     * 获取卡区列表
-     */
-    public List<Integer> getAreaList(int areaId) {
-        if (areaId == 0) {
-            return cardAreaList;
-        } else if (areaId == 1) {
-            return foldAreaList;
-        } else if (areaId == 2) {
-            return exileAreaList;
-        } else {
-            throw new RuntimeException("错误的卡区编号: " + areaId);
-        }
-    }
-
-    /**
-     * 移除并返回指定卡区的最后一张卡
-     */
-    public Integer removeAreaLast(int areaId) {
-        List<Integer> list = getAreaList(areaId);
-        return list.remove(list.size() - 1);
-    }
-
-    /**
-     * 从手牌或者场上移除卡片
-     */
-    public CardInfoVo removeCard(Integer key) {
-        if (frameMap.containsKey(key)) {
-            return frameMap.remove(key);
-        } else {
-            handList.remove(key);
-            return new CardInfoVo(key);
-        }
-    }
 }

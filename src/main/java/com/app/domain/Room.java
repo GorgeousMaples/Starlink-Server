@@ -1,6 +1,8 @@
 package com.app.domain;
 
 import com.app.domain.vo.CardGroupInfoVo;
+import com.common.core.utils.CardHandler;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,6 +47,12 @@ public class Room {
      * 观看者列表
      */
     public Set<String> spectators = new HashSet<>();
+
+    /**
+     * 卡片操作工具
+     */
+    @JsonIgnore
+    public CardHandler handler;
 
     /**
      * 玩家信息内部类

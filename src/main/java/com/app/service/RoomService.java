@@ -8,6 +8,7 @@ import com.app.domain.vo.CardGroupInfoVo;
 import com.app.domain.vo.RoomInfoVo;
 import com.app.mapper.PlayerMapper;
 import com.common.core.response.R;
+import com.common.core.utils.CardHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class RoomService {
                 .player1(new Room.PlayerInfo())
                 .player2(new Room.PlayerInfo())
                 .spectators(new HashSet<>())
+                .handler(new CardHandler())
                 .build();
         CardGroupInfoVo cardGroupVo = initCardGroupInfo(room, bo, playerId);
         room.player1.bindInfo(playerId, cardGroupVo);
@@ -143,12 +145,15 @@ public class RoomService {
     public R<String> broadcastRoom(String url, Map<String, Object> map, String playerId) {
         Room room = playerRoomCache.get(playerId);
         if (room.player1.id.equals(playerId)) {
-            gameService.invokeMethod(url, map, room.player1.cardGroup, room.player2.cardGroup);
+            room.handler.bind(room.player1.cardGroup, room.player2.cardGroup);
+//            gameService.invokeMethod(url, map, room.player1.cardGroup, room.player2.cardGroup);
         } else if (room.player2.id.equals(playerId)) {
-            gameService.invokeMethod(url, map, room.player2.cardGroup, room.player1.cardGroup);
+            room.handler.bind(room.player2.cardGroup, room.player1.cardGroup);
+//            gameService.invokeMethod(url, map, room.player2.cardGroup, room.player1.cardGroup);
         } else {
             return R.error(String.format("异常的玩家ID，%s既不是1号玩家也不是2号玩家", playerId));
         }
+        gameService.invokeMethod(url, map, room.handler);
         handler.broadcast(url, map, room, playerId); // 广播
         return R.success(map.toString(), url);
     }
