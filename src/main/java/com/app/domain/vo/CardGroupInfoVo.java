@@ -59,6 +59,21 @@ public class CardGroupInfoVo {
     private List<CardInfoVo> frameList = new ArrayList<>();
 
     /**
+     * 星能值
+     */
+    private Integer starValue = 0;
+
+    /**
+     * 核心值1
+     */
+    private Integer coreValue1 = 20;
+
+    /**
+     * 核心值2
+     */
+    private Integer coreValue2 = 20;
+
+    /**
      * 卡框字典（不参与序列化，用于转 frameList）
      */
     @JsonIgnore

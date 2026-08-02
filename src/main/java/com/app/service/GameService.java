@@ -1,5 +1,6 @@
 package com.app.service;
 
+import com.app.domain.vo.CardGroupInfoVo;
 import com.app.domain.vo.CardInfoVo;
 import com.common.core.domain.RemoteMethod;
 import com.common.core.utils.CardHandler;
@@ -43,7 +44,8 @@ public class GameService {
     ) {
         Method method = methodCache.get(methodName);
         if (method == null) {
-            throw new IllegalArgumentException("Method not found: " + methodName);
+            return null;
+//            throw new IllegalArgumentException("Method not found: " + methodName);
         }
 
         try {
@@ -69,6 +71,20 @@ public class GameService {
             e.printStackTrace();
             throw new RuntimeException("Failed to invoke method: " + methodName, e);
         }
+    }
+
+    /**
+     * 打乱卡区
+     */
+    @RemoteMethod
+    public void ShuffleArea(int areaId, List<Integer> keys, CardHandler cardHandler)
+    {
+        List<Integer> areaList = cardHandler.getAreaList(areaId);
+        areaList.clear();
+        areaList.addAll(keys);
+//        for (int key : keys) {
+//            areaList.add(key);
+//        }
     }
 
     /**
@@ -147,5 +163,27 @@ public class GameService {
     public void RemoveSticker(int typeId, int cardId, CardHandler cardHandler) {
         CardInfoVo cardInfo = cardHandler.getCard(cardId);
         cardInfo.stickers[typeId] = -1;
+    }
+
+    /**
+     * 改变星能值
+     */
+    @RemoteMethod
+    public void ChangeStarValue(boolean isOpponent, int value, CardHandler cardHandler) {
+        CardGroupInfoVo vo = cardHandler.getCardGroupInfo(isOpponent);
+        vo.setStarValue(value);
+    }
+
+    /**
+     * 改变核心值
+     */
+    @RemoteMethod
+    public void ChangeCoreValue(boolean isOpponent, boolean isFirst, int value, CardHandler cardHandler) {
+        CardGroupInfoVo vo = cardHandler.getCardGroupInfo(isOpponent);
+        if (isFirst) {
+            vo.setCoreValue1(value);
+        } else {
+            vo.setCoreValue2(value);
+        }
     }
 }

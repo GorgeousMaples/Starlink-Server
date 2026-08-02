@@ -148,6 +148,7 @@ public class RoomService {
         } else {
             return R.error(String.format("异常的玩家ID，%s既不是1号玩家也不是2号玩家", playerId));
         }
+        System.out.println("[" + url + "]：" + map.toString());
         gameService.invokeMethod(url, map, room.handler);
         handler.broadcast(url, map, room, playerId); // 广播
         return R.success(map.toString(), url);

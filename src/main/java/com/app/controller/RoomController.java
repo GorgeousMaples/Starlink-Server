@@ -57,7 +57,10 @@ public class RoomController {
     }
 
     @PostMapping("/broadcast")
-    public R<String> broadcast(@RequestBody Map<String, Object> map, @RequestParam String url) {
+    public R<String> broadcast(
+            @RequestBody Map<String, Object> map,
+            @RequestParam String url
+    ) {
         String uid = HeaderUtils.getPlayerId();
         return roomService.broadcastRoom(url, map, uid);
     }

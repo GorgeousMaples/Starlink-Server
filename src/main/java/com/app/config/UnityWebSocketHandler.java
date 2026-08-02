@@ -151,7 +151,11 @@ public class UnityWebSocketHandler extends TextWebSocketHandler {
     public <T> void broadcast(String url, T data, Room room, String senderId) {
 //        System.out.println("房间内所有玩家: " + room.getAllPlayers());
 //        System.out.println("发送者ID: " + senderId);
-        broadcast(url, data, room.getAllPlayers(), senderId);
+        if (senderId != null) {
+            broadcast(url, data, room.getAllPlayers(), senderId);
+        } else {
+            broadcast(url, data, room.getAllPlayers());
+        }
     }
 
 }

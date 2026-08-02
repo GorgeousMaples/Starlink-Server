@@ -29,10 +29,17 @@ public class CardHandler {
     }
 
     /**
+     * 获取卡组信息
+     */
+    public CardGroupInfoVo getCardGroupInfo(boolean isOpponent) {
+        return isOpponent ? otherGroup : selfGroup;
+    }
+
+    /**
      * 获取手牌区列表
      */
     public List<Integer> getHandList(boolean isOpponent) {
-        return isOpponent ? otherGroup.getHandList() : selfGroup.getHandList();
+        return getCardGroupInfo(isOpponent).getHandList();
     }
 
     /**
