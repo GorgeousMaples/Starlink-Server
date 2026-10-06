@@ -3,27 +3,28 @@ package com.app.service;
 import cn.dev33.satoken.stp.StpUtil;
 import com.app.config.UnityWebSocketHandler;
 import com.app.domain.Player;
-import com.app.domain.bo.LoginBo;
 import com.app.domain.bo.PlayerBo;
 import com.app.domain.vo.PlayerVo;
 import com.app.mapper.PlayerMapper;
 import com.common.core.response.R;
 import com.common.core.utils.BeanCopyUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Random;
-
-import static cn.dev33.satoken.SaManager.log;
 
 @Service
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerMapper playerMapper;
     private final UnityWebSocketHandler handler;
+    private final ObjectMapper objectMapper;
 
     private static final int MAX_RETRY = 10; // 最大重试次数
 
@@ -95,10 +96,33 @@ public class PlayerService {
      * 修改信息
      */
     public R<Void> modify(PlayerBo bo) {
+        if (bo.getCardGroup() != null) {
+            try {
+                JsonNode groups = objectMapper.readTree(bo.getCardGroup());
+                JsonNode list = groups == null ? null : groups.get("group");
+                JsonNode index = groups == null ? null : groups.get("currentIndex");
+                if (list == null || !list.isArray() || list.isEmpty() || index == null ||
+                        !index.isInt() || index.intValue() < 0 || index.intValue() >= list.size()) {
+                    return R.error(HttpStatus.BAD_REQUEST, "卡组数据无效");
+                }
+                for (JsonNode group : list) {
+                    if (!group.hasNonNull("name") || !group.path("cardIds").isArray() ||
+                            !group.path("cardCollIds").isArray()) {
+                        return R.error(HttpStatus.BAD_REQUEST, "卡组数据无效");
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                return R.error(HttpStatus.BAD_REQUEST, "卡组 JSON 无效");
+            }
+        }
         try {
             Player player = new Player();
-            BeanCopyUtils.copy(bo, player); // 将信息复制给 player
-            playerMapper.updateById(player);
+            player.setUid((String) StpUtil.getLoginId());
+            if (bo.getName() != null && !bo.getName().isBlank()) player.setName(bo.getName());
+            if (bo.getPassword() != null && !bo.getPassword().isBlank()) player.setPassword(bo.getPassword());
+            // 客户端提交完整卡组列表；删除操作通过覆盖旧 JSON 生效。
+            if (bo.getCardGroup() != null) player.setCardGroup(bo.getCardGroup());
+            if (playerMapper.updateById(player) != 1) return R.notFound("玩家不存在");
             return R.success(null, "玩家信息修改成功");
         } catch (Exception e) {
             e.printStackTrace();

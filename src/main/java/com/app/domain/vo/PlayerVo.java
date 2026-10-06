@@ -31,4 +31,7 @@ public class PlayerVo {
      * 身份令牌
      */
     private String token;
+
+    /** 卡组 JSON，与 CardGroups.json 格式相同。 */
+    private String cardGroup;
 }

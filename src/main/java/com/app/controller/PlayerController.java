@@ -1,5 +1,6 @@
 package com.app.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.app.domain.bo.PlayerBo;
 import com.app.domain.vo.PlayerVo;
 import com.app.service.PlayerService;
@@ -7,8 +8,6 @@ import com.common.core.response.R;
 import com.common.core.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -29,6 +28,7 @@ public class PlayerController {
     }
 
     @PostMapping("/modify")
+    @SaCheckLogin
     public R<Void> modify(@RequestBody PlayerBo bo) {
         return playerService.modify(bo);
     }

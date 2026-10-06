@@ -28,6 +28,7 @@ CREATE TABLE `t_player`  (
   `C_PASSWORD` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '账号密码',
   `C_CREATE_TIME` datetime NULL DEFAULT NULL COMMENT '账号创建时间',
   `C_LOGIN_TIME` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
+  `C_CARD_GROUP` json NULL COMMENT '玩家卡组',
   PRIMARY KEY (`C_UID`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 

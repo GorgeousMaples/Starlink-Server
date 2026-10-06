@@ -1,0 +1,7 @@
+# 与 dev 或 prod 组合启用，例如 --spring.profiles.active=prod,https。
+# 证书和私钥通过环境变量提供，不要提交到仓库。
+server:
+  ssl:
+    enabled: true
+    certificate: ${STARLINK_HTTPS_CERTIFICATE}
+    certificate-private-key: ${STARLINK_HTTPS_PRIVATE_KEY}

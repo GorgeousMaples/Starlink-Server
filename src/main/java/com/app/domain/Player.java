@@ -58,4 +58,8 @@ public class Player {
      */
     @TableField("C_LOGIN_TIME")
     private LocalDateTime lastLoginTime;
+
+    /** 卡组 JSON，格式与客户端 CardGroups.json 一致。 */
+    @TableField("C_CARD_GROUP")
+    private String cardGroup;
 }

@@ -1,0 +1,11 @@
+# prod 环境配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/starlink?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
+    username: starlink
+    password: starlink114514
+
+# 自定义文件上传路径
+file:
+  image-path: /www/wwwroot/server/images/
