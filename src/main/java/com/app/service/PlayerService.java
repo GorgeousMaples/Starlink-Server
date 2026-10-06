@@ -5,9 +5,11 @@ import com.app.config.UnityWebSocketHandler;
 import com.app.domain.Player;
 import com.app.domain.bo.PlayerBo;
 import com.app.domain.vo.PlayerVo;
+import com.app.domain.vo.PlayerSummaryVo;
 import com.app.mapper.PlayerMapper;
 import com.common.core.response.R;
 import com.common.core.utils.BeanCopyUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,26 @@ public class PlayerService {
     private final ObjectMapper objectMapper;
 
     private static final int MAX_RETRY = 10; // 最大重试次数
+
+    /** 管理端只读账户列表。 */
+    public R<List<PlayerSummaryVo>> getAccounts() {
+        Player current = playerMapper.selectById(String.valueOf(StpUtil.getLoginId()));
+        if (current == null || (!Integer.valueOf(1).equals(current.getType())
+                && !Integer.valueOf(2).equals(current.getType()))) {
+            return R.error(HttpStatus.FORBIDDEN, "仅管理员可以查看账户列表");
+        }
+
+        List<PlayerSummaryVo> accounts = playerMapper.selectList(
+                        Wrappers.<Player>lambdaQuery()
+                                .select(Player::getUid, Player::getType, Player::getName,
+                                        Player::getCreateTime, Player::getLastLoginTime)
+                                .orderByAsc(Player::getUid))
+                .stream()
+                .map(player -> new PlayerSummaryVo(player.getUid(), player.getType(), player.getName(),
+                        player.getCreateTime(), player.getLastLoginTime()))
+                .toList();
+        return R.success(accounts);
+    }
 
     /**
      * 通过密码登录

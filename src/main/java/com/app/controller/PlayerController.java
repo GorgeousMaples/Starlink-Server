@@ -3,11 +3,14 @@ package com.app.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.app.domain.bo.PlayerBo;
 import com.app.domain.vo.PlayerVo;
+import com.app.domain.vo.PlayerSummaryVo;
 import com.app.service.PlayerService;
 import com.common.core.response.R;
 import com.common.core.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -25,6 +28,12 @@ public class PlayerController {
     public R<PlayerVo> login(@RequestBody PlayerBo bo) {
         String sessionId = HeaderUtils.getSessionId();
         return playerService.login(bo, sessionId);
+    }
+
+    @GetMapping("/player/accounts")
+    @SaCheckLogin
+    public R<List<PlayerSummaryVo>> getAccounts() {
+        return playerService.getAccounts();
     }
 
     @PostMapping("/modify")

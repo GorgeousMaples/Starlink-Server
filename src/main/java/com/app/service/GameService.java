@@ -108,6 +108,18 @@ public class GameService {
     }
 
     /**
+     * 将卡牌从卡区直接移动到卡框处
+     */
+    @RemoteMethod
+    public void MoveFromAreaToFrame(int cardId, int areaId, int frameId, CardHandler cardHandler) {
+        if (frameId < 0 || frameId >= 30) {
+            throw new IllegalArgumentException("错误的卡框编号: " + frameId);
+        }
+        cardHandler.removeAreaCard(areaId, cardId);
+        cardHandler.setCardPosition(areaId < 3, cardId, frameId);
+    }
+
+    /**
      * 将手牌移动到卡框处
      */
     @RemoteMethod
